@@ -1,0 +1,93 @@
+---
+title: "Tutorial: R for Data Science"
+output: learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+library(ggplot2)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Info
+
+References:  
+[R for data sciecne book](https://r4ds.had.co.nz)  
+[Excercsie solutions](https://jrnold.github.io/r4ds-exercise-solutions/index.html)
+
+## Workflow
+From [Chapter 6](https://r4ds.had.co.nz/workflow-scripts.html)  
+6.1 Running codes:  
+You can create a new script in RStudio: **File --> New File --> R Script**  
+Useful shorcuts:  
+**`Cmd/Ctrl+Enter`** for running current line of codes. After running it, it will automatically move your cursor to the next code chunks.  
+**`Cmd/Ctrl+Shift+S`** for execute the complete script.
+
+### Exercise 
+
+*Here's a simple exercise with an empty code chunk provided for entering the answer.*
+
+Write the R code required to add two plus two:
+
+```{r two-plus-two, exercise=TRUE}
+
+```
+
+### Exercise with Code
+
+*Here's an exercise with some prepopulated code as well as `exercise.lines = 5` to provide a bit more initial room to work.*
+
+Now write a function that adds any two numbers and then call it:
+
+```{r add-function, exercise=TRUE, exercise.lines = 5}
+add <- function() {
+  
+}
+```
+
+## Exploratory Data Analysis (EDA)  
+From [Chapter 7](https://r4ds.had.co.nz/exploratory-data-analysis.html)  
+Exploratory Data Analysis (EDA) is a state of mind to develop an understanding of your data, and it is an interactive cycle:  
+1.Generate questions about your data  
+2.Search for answers by visualizing, transforming, and modeling your data.  
+3.Use what you learn to refine your questions and/or generate new questions.  
+
+### Exercise
+
+First have a look at the `diamonds` dataset:
+
+```{r print-limit, exercise=TRUE, exercise.eval=TRUE}
+# try to print first 5 rows
+# try to see the summary statistcs of each column
+diamonds
+```
+
+```{r print-limit-hint}
+head(diamonds)
+summary(diamonds)
+```
+
+```{r histo-price, exercise=TRUE, exercise.eval=TRUE}
+# Visualize the distribution of price below 2500 using histogram
+# hint: filter(), geom_histogram()
+ggplot(data = filter(diamonds, price > 3000)) +
+  geom_bar(
+    mapping = aes(x=price),
+    bins = 30, 
+    center = 0
+  )
+```
+
+```{r histo-price-hint}
+ggplot(data = filter(diamonds, price < 2500)) +
+  geom_histogram(
+    mapping = aes(x=price),
+    bins = 30, 
+    center = 0
+  )
+```
+
+### EDA frist step: Generate question  
+Why there are no diamonds with a price of around $1500?
