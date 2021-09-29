@@ -8,6 +8,7 @@ runtime: shiny_prerendered
 library(learnr)
 library(tidyverse)
 library(ggplot2)
+library(reshape2)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
@@ -17,7 +18,7 @@ References:
 [R for data sciecne book](https://r4ds.had.co.nz)  
 [Excercsie solutions](https://jrnold.github.io/r4ds-exercise-solutions/index.html)
 
-## Workflow
+## Ch6 Workflow: scripts
 From [Chapter 6](https://r4ds.had.co.nz/workflow-scripts.html)  
 6.1 Running codes:  
 You can create a new script in RStudio: **File --> New File --> R Script**  
@@ -25,36 +26,33 @@ Useful shorcuts:
 **`Cmd/Ctrl+Enter`** for running current line of codes. After running it, it will automatically move your cursor to the next code chunks.  
 **`Cmd/Ctrl+Shift+S`** for execute the complete script.
 
-### Exercise 
-
-*Here's a simple exercise with an empty code chunk provided for entering the answer.*
-
-Write the R code required to add two plus two:
-
-```{r two-plus-two, exercise=TRUE}
-
-```
-
-### Exercise with Code
-
-*Here's an exercise with some prepopulated code as well as `exercise.lines = 5` to provide a bit more initial room to work.*
-
-Now write a function that adds any two numbers and then call it:
-
-```{r add-function, exercise=TRUE, exercise.lines = 5}
-add <- function() {
+RStudio working area  
+```{r, out.width = "400px"}
+knitr::include_graphics("images/rstudio-editor.png")
+```  
   
-}
+#### RStudio diagnostic  
+Hover over the cross to see what the problem is:  
+
+```{r, out.width = "400px"}
+knitr::include_graphics("images/rstudio-diagnostic-tip.png")
+```  
+  
+#### RStudio will also let you know about potential problems:  
+
+```{r, out.width = "400px"}
+knitr::include_graphics("images/rstudio-diagnostic-warn.png")
 ```
 
-## Exploratory Data Analysis (EDA)  
+
+## Ch7 Exploratory Data Analysis (EDA)  
 From [Chapter 7](https://r4ds.had.co.nz/exploratory-data-analysis.html)  
 Exploratory Data Analysis (EDA) is a state of mind to develop an understanding of your data, and it is an interactive cycle:  
 1.Generate questions about your data  
 2.Search for answers by visualizing, transforming, and modeling your data.  
 3.Use what you learn to refine your questions and/or generate new questions.  
 
-### Exercise
+#### Exercise
 
 First have a look at the `diamonds` dataset:
 
@@ -73,11 +71,7 @@ summary(diamonds)
 # Visualize the distribution of price below 2500 using histogram
 # hint: filter(), geom_histogram()
 ggplot(data = filter(diamonds, price > 3000)) +
-  geom_bar(
-    mapping = aes(x=price),
-    bins = 30, 
-    center = 0
-  )
+  geom_bar(mapping = aes(x=price))
 ```
 
 ```{r histo-price-hint}
@@ -89,5 +83,84 @@ ggplot(data = filter(diamonds, price < 2500)) +
   )
 ```
 
-### EDA frist step: Generate question  
-Why there are no diamonds with a price of around $1500?
+#### EDA frist step: Generate a question  
+Why there are no diamonds with a price of around $1500?  
+These kind of questions can be raised during EDA. Chapter 7 introduces ways to investigate data, including **variation**, **missing values**, **covariation**, **pattern & models**.  
+  
+Here we will go through the exercise in **variation** (modified):  
+```{r diamond-xyz, exercise=TRUE, exercise.eval=TRUE}
+# try to investiage the distribution of x,y and z in diamonds
+ggplot(data = diamonds)
+  # add your codes here, hint: geom_histogram
+```
+
+```{r diamond-xyz-hint}
+ggplot(data = diamonds) + 
+  geom_histogram(
+    mapping = aes(x = x),
+    bindwidth = 0.01
+  )
+```
+
+Show the distribution of x, y, z using **geom_boxplot()** :  
+
+```{r diamond-xyz-boxplot, exercise=TRUE, exercise.eval=TRUE}
+# merge x, y, z to the same column
+diamonds.m <- melt(
+  data = diamonds, 
+  measure.vars = c("x","y", "z"),
+  variable.name = "dimension"
+  )
+
+# please modified the codes and visualize the dimension: geom_boxplot()
+ggplot(data = diamonds.m)
+```
+
+```{r diamond-xyz-boxplot-hint}
+diamonds.m <- melt(
+  data = diamonds, 
+  measure.vars = c("x","y", "z"),
+  variable.name = "dimension"
+  )
+
+ggplot(data = filter(diamonds.m, value < 30)) +
+  geom_boxplot(
+    mapping = aes(x = dimension, y = value, color = dimension)
+  )
+```
+
+## Ch8 Workflow: projects  
+From [Chapter 8](https://r4ds.had.co.nz/workflow-projects.html)  
+### Suggestion on .RData and workspace:  
+Do not preserve your workspace between sessions  
+```{r, out.width = "400px"}
+knitr::include_graphics("images/rstudio-workspace.png")
+```  
+Userful shorcuts:  
+`Cmd/Ctrl + Shift + F10` to restart RStudio  
+`Cmd/Ctrl + Shift + S` to rerun the current script  
+
+You can find your current working path under console. You can also access using `getwd()` to print current working path and `setwd()` to set your current working path typing in console.  
+  
+### Paths and Directories are important when you are specifying where the files is. There are two suggestions:  
+1. Do not use absolute paths since no one else will have exactly the same directory configuration as you.  
+2. Use Mac/Linux slashes(`/`) to separate the components of the path. For example:  
+```{r, out.width="400px"}
+knitr::include_graphics("images/rstudio-wd.png")
+```  
+  
+### RStudio projects  
+In this section, I want you to try create a new project in RStudio, click **File --> New Project**:  
+```{r, out.width="600px"}
+knitr::include_graphics("images/rstudio-project-1.png")
+knitr::include_graphics("images/rstudio-project-2.png")
+knitr::include_graphics("images/rstudio-project-3.png")
+```  
+  
+Now you should see a **.Rproj** file in your directory:  
+```{r, out.width="400px"}
+knitr::include_graphics("images/RPROJECT_2000.png")
+```  
+  
+You can add today's scripts, plots, data in the current directory. Next time when you are going to reproduce your previous work. Have a try and have fun with it!  
+![have fun](https://c.tenor.com/7jFkj6yPIw0AAAAC/lets-have.gif)
