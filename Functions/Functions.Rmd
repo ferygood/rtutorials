@@ -9,6 +9,7 @@ library(learnr)
 library(tidyverse)
 library(ggplot2)
 library(reshape2)
+library(magrittr)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
@@ -164,3 +165,91 @@ knitr::include_graphics("images/RPROJECT_2000.png")
   
 You can add today's scripts, plots, data in the current directory. Next time when you are going to reproduce your previous work. Have a try and have fun with it!  
 ![have fun](https://c.tenor.com/7jFkj6yPIw0AAAAC/lets-have.gif)
+
+## Ch17: Program Introduction
+You want your codes to be:  
+1. Easy to write  
+2. Easy to read  
+3. Collaborate with other people and future-you  
+The program chapter includes **Pipes**, **Functions**, **Vectors**, and **Iteration**.  
+Additional learning materials:  
+1. [Hands on Programming with R](https://amzn.com/1449359019)  
+2. [Advanced R](http://adv-r.had.co.nz)  
+
+## Ch18: Pipes 
+![pipe](https://codethislab.com/wp-content/uploads/2017/09/5fb07b56984761.59c3e36095756.jpg)  
+Thinking of your code as to get this man a beer by moving beer from start to the end. Pipes `%>%` is the tool in R to put pieces of codes together and it is from **magrittr** package which will be load automatically when you load tidyverse.  
+  
+```{r pipe-example, exercise=TRUE, exercise.eval=TRUE}
+# Try using pipe to combine step1 and step2
+
+# create a simple dataframe with gene and expression
+gene <- data.frame(
+    name=c("geneA", "geneB", "geneC", "geneD", "geneE"),
+    exp=sample(seq(1,10000), 5 )
+)
+
+# run without using pipes: step1 --> step2 --> step3
+# step1
+gene_ensg <- mutate(gene,  gene_ensg = str_c("ensg_", name))
+
+# step2
+gene_ensg_log2 <- mutate(gene_ensg, exp_log2 = log2(exp)) 
+
+# step3
+p <- ggplot(data = gene_ensg_log2, aes(x = gene_ensg, y = exp_log2)) +
+        geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4)
+p
+```
+
+```{r pipe-example-hint}
+gene %>% 
+    mutate(name_ensg = str_c("ensg_", name)) %>%
+    mutate(exp_log2 = log2(exp)) %>%
+    ggplot(aes(x = name_ensg, y=exp_log2)) +
+      geom_bar(stat="identity", fill="#f68060", alpha=.6, width=.4)
+```
+
+We can see pipe as an **intermediate output**. Suggested ways to use pipe:  
+1. You only want the final output.  
+2. You want to overwrite your data after some data analysis procedures, and do not want to save a lot of intermediate variables.  
+  
+There are times **not suggested** using pipes:  
+1. You have function that will create new variable, e.g. assign(x, 10)  
+2. You have function which does lazy evaluation.  
+3. You have too many steps. It is hard to debug since you do not create intermediate variables.  
+4. You have multiple inputs or outputs. Pipes is a linear way to connect steps.  
+  
+    
+There are alternative pipes:  
+**tee**, **replace**, **exposition**:  
+```{r tee-operator, exercise=TRUE, exercise.eval=TRUE}
+# convert pipe to tee pipe to return matrix
+rnorm(30) %>%
+    matrix(ncol = 2) %>%
+    plot()
+```
+
+```{r tee-operator-hint}
+# convert pipe to tee pipe to return matrix
+rnorm(30) %>%
+    matrix(ncol = 2) %T>%
+    plot()
+```
+```{r replace-operator, exercise=TRUE, exercise.eval=TRUE}
+# use replace operator to reassign to your variable
+mtcars <- mtcars %>%
+    transform(cyl=cyl*2)
+```
+
+```{r replace-operator-hint}
+mtcars %<>% transform(cyl=cyl*2)
+```
+```{r exposition-operator, exercise=TRUE, exercise.eval=TRUE}
+# use exposition operator to feed data column
+cor(mtcars$disp, mtcars$mpg)
+```
+
+```{r exposition-operator-hint}
+mtcars %$% cor(disp, mpg)
+```
