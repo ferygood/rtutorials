@@ -10,6 +10,8 @@ library(tidyverse)
 library(ggplot2)
 library(reshape2)
 library(magrittr)
+library(generator)
+library(randomNames)
 knitr::opts_chunk$set(echo = FALSE)
 ```
 
@@ -253,3 +255,160 @@ cor(mtcars$disp, mtcars$mpg)
 ```{r exposition-operator-hint}
 mtcars %$% cor(disp, mpg)
 ```
+
+## Ch19: Functions 
+The time you can consider writing your own function: when your doing a lot of repeating jobs (copy & paste), your code chunks grows bigger and bigger, and you want other people to use your function.  
+**DRY principle: Don't Repeat Yourself**  
+R function components:  
+<img src="https://www.oreilly.com/library/view/hands-on-programming-with/9781449359089/images/hopr_0106.png" alt="drawing" width="800px"/>  
+Ref: Hands on Programming with R  
+1. The name: the name of a function is usually a **verb**. It is suggested to use **snake_case** or **camelCase**.  
+2. The body: contain your executable codes.  
+3. & 4. The argument and default value:  
+- **x, y, z**: vectors.  
+- **w**: a vector of weights.  
+- **df**: a data frame.  
+- **i, j**: numeric indices (typically rows and columns).  
+- **n**: length, or number of rows.  
+- **p**: number of columns.  
+5. The last line of code: r function will return the output of the last line of your code and save it to your variable.  
+```{r function-example, exercise=TRUE, exercise.eval=FALSE}
+add_integer <- function(x,y){
+    if(x%%1==0 && y%%1==0){
+        x+n
+    } else {
+        round(x) + round(y)
+    }
+}
+
+```  
+```{r function-example-hint}
+add_integer <- function(x,y){
+    if(x%%1==0 && y%%1==0){
+        x+n
+    } else {
+        round(x) + round(y)
+    }
+}
+
+add_integer(3, 5.6)
+
+```
+Use `switch` to avoid nested function such as too many conditional statements.  
+![ident hadoukan](https://external-preview.redd.it/6TTm4tS5pMCiq2KlgviubpGKt1QzvetOi2Z6Z3lB1Nc.jpg?auto=webp&s=c1df961d84c8d76048a93c1d261e425d3737d779)
+```{r r-switch, exercise=TRUE, exercise.eval=FALSE}
+math_operate <- function(x, y , op = "plus") {
+    if (y != 0) {
+        if (op == "plus") {
+            x + y
+        } else if (op == "minus") {
+            x - y
+        } else if (op == "times") {
+            x * y
+        } else if (op == "divide") {
+            x / y
+        } else {
+            stop("Unknown op.")
+        }
+    } else {
+        "Cannot divided by Zero"
+    }
+}
+math_operate(3,5)
+```
+```{r r-switch-hint}
+math_operate <- function(x, y , op = "plus") {
+    if (y != 0) {
+        switch(op,
+              plus = x + y,
+              minus = x - y,
+              times = x * y,
+              divide = x / y,
+              stop("Unknown op.")
+        )
+    } else {
+        "Cannot divided Zero"
+    }
+}
+math_operate(3,5)
+
+```
+
+#### Use `stopifnot()` to check each argument is **TRUE** in your function
+```{r r-stopifnot, exercise=TRUE, exercise.eval=TRUE}
+df1 <- tibble(
+    studentID = seq(1:10),
+    phone = r_phone_numbers(10, use_hyphens=TRUE)
+)
+
+df2 <- tibble(
+    studentID = seq(1:6),
+    name = randomNames(6)
+)
+
+df3 <- tibble(
+    studentID = seq(1:10),
+    name = randomNames(10)
+)
+
+combined_df <- function(df_x, df_y) {
+    # add stopifnot() to check if all conditions are meet
+    # (1) studentID should be matched, and row numbers should be the same
+    df <- inner_join(df_x, df_y, by="studentID")
+    df
+}
+
+combined_df(df1, df2)
+
+```
+```{r r-stopifnot-hint}
+combined_df <- function(df_x, df_y) {
+    stopifnot(all(df_x[,1] %in% df_y[,1]), nrow(df_x)==nrow(df_y))
+    df <- inner_join(df_x, df_y, by="studentID")
+    return(df)
+}
+
+combined_df(df1, df2)
+combined_df(df1, df3)
+```
+
+If user want to import arbitrary number of arguments, we want the length of input to be flexible: dot, dot, dot `...`
+```{r r-dotdotdot, exercise=TRUE, exercise.eval=TRUE}
+class_of_vars <- function(x, y) {
+    list_var <- list(x, y)
+    str(list_var)
+}
+
+class_of_vars(x = 1, y = "Tom")
+```
+```{r r-dotdotdot-hint}
+class_of_vars <- function(...) {
+    list_var <- list(...)
+    str(list_var)
+}
+
+class_of_vars(a = 1, b = "Tom", c = TRUE, d = 4.456)
+```
+
+The last part is trying to write a function and use it with pipe `%>%`
+```{r r-function-pipe, exercise=TRUE, exercise.eval=TRUE}
+show_missings <- function(df) {
+    n <- sum(is.na(df))
+    cat("Missing values: ", n, "\n", sep="")
+    invisible(df)
+}
+
+mtcars %>%
+    show_missings() %>%
+    mutate(mpg = ifelse(mpg < 20, NA, mpg)) %>%
+    show_missings()
+
+```
+
+So you have quickly go through ch17-19. Horray!  
+Next stage:  
+```{r, out.width="600px"}
+knitr::include_graphics("images/sugar.png")
+```  
+  
+(just kidding XD) 
